@@ -85,14 +85,19 @@ class DatasetManager:
             face = [int(pixel) for pixel in pixel_sequence.split(' ')]
             face = np.asarray(face).reshape(width, height)
             # face = cv2.resize(face.astype('uint8'), self.input_size)
+            face = face.astype('uint8')
             if len(self.input_size) == 3:
                 if self.input_size[2] == 3:
-                    face = gray2bgr(face.astype('uint8'))
+                    face = gray2bgr(face)
+            elif len(self.input_size) == 2:
+               face = np.reshape(face, (height, width, 1)) 
             face = resize_img_with_cv2(face, self.input_size)
             faces.append(face.astype('float32'))
+            
         faces = np.asarray(faces)
         if len(self.input_size) == 2:
-            faces = np.expand_dims(faces, -1)
+                faces = np.expand_dims(faces, -1)
+        
         emotions = pd.get_dummies(data['emotion']).as_matrix()
         print('X Shape: ', faces.shape, 'Y Shape: ', emotions.shape)
         return faces, emotions
@@ -162,6 +167,26 @@ def get_nth_batch(x_data, y_data, batch_idx=0, batch_size=64):
 
     return batch_xs, batch_ys
 
+
+def load_npz(dataset_name, dataset_dir):
+    load_path = os.path.join(dataset_dir, dataset_name + '.npz')
+    loaded_data = np.load(load_path)
+
+    input_size = loaded_data['inputsize']
+    x_train = loaded_data['x_train']
+    y_train = loaded_data['y_train']
+    x_val = loaded_data['x_valid']
+    y_val = loaded_data['y_valid']
+    x_test = loaded_data['x_test']
+    y_test = loaded_data['y_test']
+
+    print('Data Shape: ', x_train.shape[1:])
+    print('Label Shape : ', y_train.shape[1:])
+    print('Train Data loaded %d' % (x_train.shape[0]))
+    print('Validaion Data loaded %d' % (x_val.shape[0]))
+    print('Test Data loaded %d' % (x_test.shape[0]))
+
+    return x_train, y_train, x_val, y_val, x_test, y_test
 
 # randidx    = np.random.randint(imgcnt, size=imgcnt)
 # trainidx   = randidx[0:int(3*imgcnt/5)]

@@ -38,7 +38,7 @@ def rgb2gray(img):
     if len(img.shape) is 3:
         return np.dot(img[...,:3], [0.299, 0.587, 0.114])
     else:
-        print ("Current Image if GRAY!")
+        # print ("Current Image if GRAY!")
         return img
 
 def rgb2bgr(img):
@@ -60,6 +60,8 @@ def bgr2rgb(img):
     # rgb[:, :, 1] = img[:, :, 1]
     # Blue Channel
     rgb[:, :, 2] = img[:, :, 0]
+    
+    return rgb
 
 def print_type_and_shape(img):
     print("Type is %s" % (type(img)))
@@ -82,7 +84,9 @@ def resize_img_with_cv2(img, new_shape):
 
     return cv2.resize(img, dsize=(new_w, new_h), interpolation=interpolation)
 
-def gray2bgr(img):
+def gray2bgr(img, return_rgb=True):
+    if return_rgb:
+        return bgr2rgb(cv2.cvtColor(img, cv2.COLOR_GRAY2BGR))
     return cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
 
 def resize_img(img, new_shape):
